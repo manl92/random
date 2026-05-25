@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iki vyrų vakaro liko</title>
+  <style>
+    :root {
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --bg: #f5f3ef;
+      --text: #1c1814;
+      --text-muted: rgba(28,24,20,0.35);
+      --accent: #c8853a;
+      /* Card width drives everything */
+      --cw: clamp(140px, 18vw, 220px);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+      color: var(--text);
+    }
+
+    .page {
+      position: fixed; inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(24px, 4.5vh, 56px);
+      padding: clamp(20px, 3vw, 48px);
+    }
+
+    /* ─── Card fan ─── */
+    .cards-fan {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      /* Negative margin creates the overlapping spread */
+      gap: 0;
+      flex-shrink: 0;
+      padding-top: 24px; /* room for upward card offset */
+    }
+
+    .card-wrap {
+      flex-shrink: 0;
+      /* Negative margins pull cards together for fan overlap */
+      margin: 0 calc(var(--cw) * -0.12);
+    }
+
+    .card {
+      width: var(--cw);
+      aspect-ratio: 3 / 4;
+      border-radius: clamp(14px, 2vw, 24px);
+      overflow: hidden;
+      will-change: opacity;
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.09),
+        0 12px 40px rgba(0,0,0,0.14),
+        inset 0 0 0 1px rgba(0,0,0,0.04);
+      /* Rotation is on the wrap; opacity animates here */
+    }
+
+    .card img,
+    .card video {
+      display: block;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Fan rotations + vertical offsets ── */
+    .card-wrap-0 {
+      transform-origin: bottom center;
+      transform: rotate(-8deg) translateY(6%);
+      z-index: 1;
+      animation: wrapIn 0.85s var(--ease-out) 0.15s both;
+    }
+    .card-wrap-1 {
+      transform-origin: bottom center;
+      transform: rotate(-2deg) translateY(-4%);
+      z-index: 3;
+      animation: wrapIn 0.85s var(--ease-out) 0.28s both;
+    }
+    .card-wrap-2 {
+      transform-origin: bottom center;
+      transform: rotate(7deg) translateY(4%);
+      z-index: 2;
+      animation: wrapIn 0.85s var(--ease-out) 0.42s both;
+    }
+
+    @keyframes wrapIn {
+      from {
+        opacity: 0;
+        transform: rotate(var(--fan-rot, 0deg)) translateY(calc(6% + 32px)) scale(0.93);
+      }
+      to {
+        /* each wrap restores its own transform via inline style override below */
+        opacity: 1;
+      }
+    }
+
+    /* ─── Countdown ─── */
+    .countdown-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(10px, 1.8vh, 20px);
+      text-align: center;
+      opacity: 0;
+      animation: fadeUp 0.85s var(--ease-out) 0.6s forwards;
+    }
+
+    .header h1 {
+      font-size: clamp(0.82rem, 1.8vw, 1.3rem);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      color: var(--text);
+      opacity: 0.65;
+    }
+
+    .countdown {
+      display: flex;
+      gap: clamp(3px, 1vw, 18px);
+      align-items: flex-end;
+    }
+
+    .unit {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+    }
+
+    .unit-number {
+      font-size: clamp(2.6rem, 7.5vw, 7rem);
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      display: inline-block;
+      transform-style: preserve-3d;
+    }
+
+    .unit-label {
+      font-size: clamp(0.4rem, 0.85vw, 0.58rem);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .unit-sep {
+      font-size: clamp(1.8rem, 5vw, 4.5rem);
+      font-weight: 200;
+      line-height: 1;
+      color: var(--accent);
+      opacity: 0.5;
+      padding-bottom: 10px;
+      letter-spacing: -0.04em;
+    }
+
+    .date-line {
+      font-size: clamp(0.44rem, 0.8vw, 0.58rem);
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ─── Float bob (on outer wrapper, isolated from rotation) ─── */
+    .card-float-0 { animation: floatBob 4.2s ease-in-out 1.1s infinite; }
+    .card-float-1 { animation: floatBob 4.8s ease-in-out 1.5s infinite; }
+    .card-float-2 { animation: floatBob 4.5s ease-in-out 1.8s infinite; }
+
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-9px); }
+    }
+
+    /* ─── Shared animations ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes numFlip {
+      0%   { transform: rotateX(0deg);   opacity: 1; }
+      42%  { transform: rotateX(-85deg); opacity: 0.15; }
+      58%  { transform: rotateX(85deg);  opacity: 0.15; }
+      100% { transform: rotateX(0deg);   opacity: 1; }
+    }
+    .unit-number.flipping {
+      animation: numFlip 0.3s var(--ease-in-out);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card-float-0, .card-float-1, .card-float-2,
+      .card-wrap-0, .card-wrap-1, .card-wrap-2, .countdown-area {
+        animation: none !important; opacity: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="cards-fan" id="cardsFan">
+    <div class="card-float card-float-0">
+      <div class="card-wrap card-wrap-0">
+        <div class="card" id="card0"></div>
+      </div>
+    </div>
+    <div class="card-float card-float-1">
+      <div class="card-wrap card-wrap-1">
+        <div class="card" id="card1"></div>
+      </div>
+    </div>
+    <div class="card-float card-float-2">
+      <div class="card-wrap card-wrap-2">
+        <div class="card" id="card2"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="countdown-area">
+    <div class="countdown">
+      <div class="unit">
+        <div class="unit-number" id="days">00</div>
+        <div class="unit-label">Dienos</div>
+      </div>
+      <div class="unit-sep">:</div>
+      <div class="unit">
+        <div class="unit-number" id="hours">00</div>
+        <div class="unit-label">Valandos</div>
+      </div>
+      <div class="unit-sep">:</div>
+      <div class="unit">
+        <div class="unit-number" id="minutes">00</div>
+        <div class="unit-label">Minutės</div>
+      </div>
+      <div class="unit-sep">:</div>
+      <div class="unit">
+        <div class="unit-number" id="seconds">00</div>
+        <div class="unit-label">Sekundės</div>
+      </div>
+    </div>
+
+    <div class="date-line">2026 · VI · VI</div>
+  </div>
+
+</div>
+<script>
+  const MEDIA = [
+    { src: 'Countdown/141437888_250075129848662_1112393254139546872_n.jpg',       type: 'img'   },
+    { src: 'Countdown/371517356_859951435598241_3678711195372717860_n.jpg',        type: 'img'   },
+    { src: 'Countdown/383725947_24230698723182152_1679302881122557265_n.mp4',      type: 'video' },
+    { src: 'Countdown/384175425_629470802665169_5246111184563330510_n.jpg',        type: 'img'   },
+    { src: 'Countdown/384219128_3599687973623459_4177908288195692752_n.jpg',       type: 'img'   },
+    { src: 'Countdown/384476159_220558111027856_3915681287911670275_n.jpg',        type: 'img'   },
+    { src: 'Countdown/384509415_1428253751366348_2464607322655477364_n.jpg',       type: 'img'   },
+    { src: 'Countdown/410676730_262452980179124_5199170201370747871_n.jpg',        type: 'img'   },
+    { src: 'Countdown/445725893_365810486501583_6350479619693924810_n.jpg',        type: 'img'   },
+    { src: 'Countdown/449308868_1131587124578185_7798208808056998686_n.jpg',       type: 'img'   },
+    { src: 'Countdown/449833583_7862534147168411_2356104580544080033_n.mp4',       type: 'video' },
+    { src: 'Countdown/450519792_7915937601778494_7284937102851877445_n.jpg',       type: 'img'   },
+    { src: 'Countdown/472757943_588018513946128_5800003102946586607_n.jpg',        type: 'img'   },
+    { src: 'Countdown/500567645_1707063193328580_2808247422512885801_n.jpg',       type: 'img'   },
+    { src: 'Countdown/552982439_1135247078174283_3823606865787398403_n.jpg',       type: 'img'   },
+    { src: 'Countdown/576796678_1172088098318192_5798775229159787410_n.jpg',       type: 'img'   },
+    { src: 'Countdown/577864910_2017795002319548_3811160795112913201_n.jpg',       type: 'img'   },
+    { src: 'Countdown/597634177_2047072699386991_3949598686837004120_n.jpg',       type: 'img'   },
+    { src: 'Countdown/616371206_1395042615705867_6846571757042758912_n.jpg',       type: 'img'   },
+    { src: 'Countdown/AQOXEOKaCBGsTtsPgdTbKVyfvyi1yZxx_aqtzYDMD_NIFZII1YjIhC-N8AHrNkEPFcppPiOyiuxSY9EjYuGmJeAw_fbAHARtrF7GYnHx6BYBpeaws2ibEpUdjT_Peg.mp4', type: 'video' },
+    { src: 'Countdown/AQOz0gMmLIPPI-nCuBxUutbAUfX7RsJmQ5ftqxeft4xicxCPswbDMa_8Kqj_6LIvZBaJsxSZEnRzfAv3n0w-tylSFeLXKQ3d15C4BPzaWvtICefDsYRJRpMftFpdZw.mp4', type: 'video' },
+    { src: 'Countdown/Additional/449157395_445248321756031_6800497915755921600_n.jpg', type: 'img' },
+    { src: 'Countdown/Additional/449327723_7801634539922890_828957583024865766_n.jpg', type: 'img' },
+    { src: 'Countdown/Additional/449496445_892207396274687_8675990682218422553_n.jpg', type: 'img' },
+    { src: 'Countdown/Additional/462548826_487925023599546_5160528398801339764_n.jpg', type: 'img' },
+    { src: 'Countdown/Additional/IMG_2818.jpg', type: 'img' },
+    { src: 'Countdown/Additional/IMG_4142.jpg', type: 'img' },
+    { src: 'Countdown/Additional/IMG_4986.jpg', type: 'img' },
+    { src: 'Countdown/Additional/IMG_7040.jpg', type: 'img' },
+  ];
+
+  const cardEls   = [document.getElementById('card0'), document.getElementById('card1'), document.getElementById('card2')];
+  const INTERVALS = [7200, 8800, 7800]; // ms — staggered so they don't swap together
+  const active    = new Set();
+  const slots     = cardEls.map(() => ({ idx: -1, timer: null, busy: false }));
+
+  function pickNext() {
+    const unused = MEDIA.map((_,i)=>i).filter(i => !active.has(i));
+    const pool   = unused.length ? unused : MEDIA.map((_,i)=>i);
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function buildMedia(file, onFail) {
+    if (file.type === 'img') {
+      const img = document.createElement('img');
+      img.src = file.src; img.alt = ''; img.draggable = false;
+      img.onerror = () => onFail && onFail();
+      return img;
+    }
+    const v = document.createElement('video');
+    v.src = file.src; v.autoplay = true; v.muted = true;
+    v.loop = false; v.playsInline = true; v.draggable = false;
+    return v;
+  }
+
+  function swap(i) {
+    const slot = slots[i];
+    const el   = cardEls[i];
+    if (slot.busy) return;
+    slot.busy = true;
+    clearTimeout(slot.timer);
+
+    const next = pickNext();
+
+    // Fade out (opacity only — rotation lives on the wrapper, not here)
+    const out = el.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: 340, easing: 'ease-out', fill: 'forwards' }
+    );
+
+    out.onfinish = () => {
+      el.innerHTML = '';
+      if (slot.idx >= 0) active.delete(slot.idx);
+      slot.idx = next;
+      active.add(next);
+
+      const m = buildMedia(MEDIA[next], () => swap(i));
+      el.appendChild(m);
+      if (MEDIA[next].type === 'video') {
+        m.addEventListener('ended', () => swap(i), { once: true });
+      }
+
+      const inn = el.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 500, easing: 'ease-out' }
+      );
+      inn.onfinish = () => {
+        out.cancel();
+        slot.busy = false;
+        schedule(i);
+      };
+    };
+  }
+
+  function schedule(i) {
+    if (slots[i].idx >= 0 && MEDIA[slots[i].idx].type === 'video') return;
+    const jitter = (Math.random() - 0.5) * 2400;
+    slots[i].timer = setTimeout(() => swap(i), INTERVALS[i] + jitter);
+  }
+
+  // Seed initial content, stagger first swaps so they don't all hit at once
+  const shuffled = MEDIA.map((_,i)=>i).sort(() => Math.random() - 0.5);
+  cardEls.forEach((el, i) => {
+    const idx = shuffled[i];
+    slots[i].idx = idx;
+    active.add(idx);
+
+    const m = buildMedia(MEDIA[idx], () => swap(i));
+    el.appendChild(m);
+    if (MEDIA[idx].type === 'video') {
+      m.addEventListener('ended', () => swap(i), { once: true });
+    }
+
+    // First swap starts after entrance animation + stagger
+    setTimeout(() => schedule(i), 1400 + i * 900);
+  });
+
+  // ─── Countdown ───────────────────────────────────────────────────────────
+  const TARGET = new Date('2026-06-06T00:00:00');
+  const els  = { days: document.getElementById('days'), hours: document.getElementById('hours'), minutes: document.getElementById('minutes'), seconds: document.getElementById('seconds') };
+  const prev = { days: null, hours: null, minutes: null, seconds: null };
+
+  function pad(n) { return String(Math.max(0,n)).padStart(2,'0'); }
+
+  function flip(el) {
+    el.classList.remove('flipping'); void el.offsetWidth;
+    el.classList.add('flipping');
+    el.addEventListener('animationend', () => el.classList.remove('flipping'), { once: true });
+  }
+
+  function tick() {
+    const diff = TARGET - new Date();
+    if (diff <= 0) { Object.values(els).forEach(e => e.textContent = '00'); return; }
+    const vals = { days: Math.floor(diff/86400000), hours: Math.floor((diff%86400000)/3600000), minutes: Math.floor((diff%3600000)/60000), seconds: Math.floor((diff%60000)/1000) };
+    for (const k of Object.keys(vals)) {
+      const str = pad(vals[k]);
+      if (str !== prev[k]) { els[k].textContent = str; if (prev[k] !== null) flip(els[k]); prev[k] = str; }
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+</body>
+</html>
