@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sodybų palyginimas · 2026 m. birželio 6–7 d.</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://tile.openstreetmap.org">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{--bg:#f4f2ec;--card:#fffdf8;--ink:#17221d;--muted:#68736b;--dark:#173f35;--accent:#cf8641;--line:#dfdbcf;--green:#e7f3e8;--red:#f8ebdf;--shadow:0 9px 30px rgba(22,35,28,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font:14px Arial,sans-serif;color:var(--ink)}a{color:inherit}
+.page{max-width:1380px;margin:auto;padding:20px}.hero{display:grid;grid-template-columns:1.35fr .8fr;gap:24px;background:var(--dark);border-radius:28px;padding:32px;color:#f9f6ee;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:470px;height:470px;right:-220px;top:-270px;background:radial-gradient(circle,#b8ddd7,transparent 66%);opacity:.3}
+.kicker{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#acd2c7;font-weight:bold;margin-bottom:14px}
+h1{font:500 clamp(34px,5vw,53px)/1.05 Georgia,serif;margin:0 0 12px;letter-spacing:-.035em}.hero p{margin:0;max-width:670px;color:#d7e0da;line-height:1.58;font-size:15px}
+.trip{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-content:end;position:relative;z-index:1}.trip div{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);padding:14px;border-radius:14px}
+.trip small{display:block;color:#acd2c7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}.trip b{font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px}.stat b{display:block;font-size:23px;margin-bottom:5px}.stat small{color:var(--muted);line-height:1.42}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.controls button,.controls select{border:1px solid var(--line);border-radius:999px;background:var(--card);padding:11px 14px;cursor:pointer;color:var(--ink);transition:.16s}.controls button:hover,.controls button.active{background:var(--dark);border-color:var(--dark);color:#fff}.controls select{margin-left:auto}
+.content{display:grid;grid-template-columns:minmax(410px,.95fr) minmax(430px,1.05fr);gap:15px;align-items:start}
+.mapbox{position:sticky;top:15px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:10px;box-shadow:var(--shadow)}
+#map{height:704px;border-radius:13px}.caption{font-size:12px;color:var(--muted);padding:10px 7px 4px;line-height:1.48}
+.list{display:grid;gap:12px}.item{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:.16s}.item:hover,.item.hot{box-shadow:var(--shadow);border-color:#aabbb1}
+.preview{height:202px;position:relative;background:#dde4dc;overflow:hidden;cursor:pointer}.preview img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s}.item:hover .preview img{transform:scale(1.025)}.img-credit{position:absolute;right:10px;bottom:9px;font-size:10px;background:rgba(20,29,24,.65);color:white;border-radius:999px;padding:5px 8px}
+.body{padding:16px 17px 17px}.head{display:flex;justify-content:space-between;gap:12px}.source{font-size:12px;color:var(--muted);margin-bottom:6px}.item h2{font-size:18px;line-height:1.25;margin:0}.price{text-align:right;white-space:nowrap}.price b{display:block;font-size:21px}.price small{color:var(--muted);font-size:11px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0}.tag{background:#ebede7;color:#415149;font-size:11px;font-weight:bold;padding:6px 9px;border-radius:999px}.tag.ok{background:var(--green);color:#20653d}.tag.no{background:var(--red);color:#8d4b19}
+.facts{border-block:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 0;margin-bottom:10px}.facts small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}.facts b{font-size:13px;line-height:1.35}
+.note{color:#506058;line-height:1.44;margin:0 0 12px}.actions{display:flex;align-items:center;gap:8px}.open{background:var(--dark);color:#fff;text-decoration:none;font-size:13px;font-weight:bold;border-radius:10px;padding:9px 12px}.alt{background:transparent;color:var(--dark);border:1px solid #bac9c1}.pick{margin-left:auto;color:var(--muted);font-size:12px}input{accent-color:var(--dark)}
+.compare{display:none;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-top:14px}.compare.show{display:block}.compare h3{font:500 25px Georgia,serif;margin:0 0 12px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--dark)}td:first-child{color:var(--muted);width:140px}
+.popup-img{display:block;width:210px;height:108px;object-fit:cover;border-radius:9px;margin:-1px 0 8px}.pop-title{font-weight:700;font-size:14px;margin-bottom:4px}.pop-info{color:#55635c;font-size:12px;margin-bottom:8px}.pop-link{display:inline-block;background:var(--dark);color:#fff!important;text-decoration:none;padding:6px 9px;border-radius:8px;font-weight:bold}
+footer{font-size:12px;color:var(--muted);line-height:1.54;border-top:1px solid var(--line);padding-top:15px;margin-top:18px}
+@media(max-width:950px){.page{padding:12px}.hero,.content{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.mapbox{position:static}#map{height:390px}.controls select{margin-left:0}.preview{height:210px}}
+@media(max-width:560px){.trip,.stats{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}}
+</style></head>
+<body><main class="page">
+<header class="hero">
+<div><div class="kicker">Sodybų prie vandens sąrašas · Lietuva</div><h1>Viena naktis prie ežero</h1><p>Interaktyvus septynių sodybų ir namelių palyginimas keturiems suaugusiesiems. Rodomos skelbimuose paskelbtos kainos, kai jos viešai prieinamos; galutinę kainą ir užimtumą būtina patvirtinti prieš rezervuojant.</p></div>
+<div class="trip"><div><small>Datos</small><b>2026 m. birželio 6–7 d.</b></div><div><small>Keliautojai</small><b>4 suaugusieji · 1 naktis</b></div><div><small>Naktis</small><b>Šeštadienis</b></div><div><small>Duomenys tikrinti</small><b>2026 m. gegužės 25 d.</b></div></div>
+</header>
+<section class="stats">
+<div class="stat"><b>7</b><small>palygintos poilsio vietos</small></div>
+<div class="stat"><b>4+</b><small>variantai be nurodyto 1 nakties apribojimo</small></div>
+<div class="stat"><b>nuo 100 €</b><small>mažiausia viešai paskelbta 4–6 asm. namelio kaina</small></div>
+<div class="stat"><b>Aiškiausias atitikimas</b><small>„Poilsiadienis“: 150 € šeštadienį ir leidžiama 1 para</small></div>
+</section>
+<nav class="controls" aria-label="Filtrai">
+<button class="active" data-f="all">Visi 7 variantai</button><button data-f="eligible">Tinka 1 nakčiai</button><button data-f="water">Prie vandens</button><button data-f="pets">Galima su gyvūnais</button>
+<select id="sort" aria-label="Rikiuoti"><option value="rank">Rikiuoti: rekomenduojama tvarka</option><option value="price">Rikiuoti: pagal kainą</option><option value="capacity">Rikiuoti: pagal vietų skaičių</option></select>
+</nav>
+<section class="content">
+<aside class="mapbox"><div id="map" aria-label="Sodybų žemėlapis"></div><div class="caption">Žymekliai sudėti pagal skelbimuose nurodytas koordinates, kai jos prieinamos. „Gervės Manor“ ir „Poilsiadienio“ vietos šiame santraukos žemėlapyje yra apytikslės pagal skelbime nurodytą vietovę / adresą.</div></aside>
+<div><div id="list" class="list"></div><section id="compare" class="compare"><h3>Pasirinktų variantų palyginimas</h3><div id="comparison"></div></section></div>
+</section>
+<footer><b>Svarbu:</b> tai palyginimo puslapis, o ne rezervacijos patvirtinimas. Prieš mokant avansą patikrinkite datų užimtumą, galutinę kainą, papildomų paslaugų įkainius ir atšaukimo sąlygas originaliame skelbime. Nuotraukų peržiūros įkeliamos iš originalių skelbimų platformų ir priklauso jų savininkams.</footer>
+</main>
+<script>
+const stays=[
+{id:'poilsiadienis',rank:1,name:'Poilsiadienis',source:'Booking.com / PrieEžero.lt',loc:'Aukštadvaris · Navos ežeras',lat:54.5788,lng:24.5255,water:1,eligible:true,pets:true,cap:5,capacity:'5 svečių namelis',min:'1 para',num:150,price:'150 €',priceNote:'namelis · šeštadienio naktis',extras:'Pirtis + kubilas 140 € savaitgalį',tags:['Privati pakrantė','Pirtis ir kubilas','Wi-Fi','Gyvūnai +10 €'],note:'Aiškiausiai tinkantis variantas: skelbime nurodyta minimali 1 paros trukmė, o 5 vietų namelio kaina birželio 6 d. šeštadienį – 150 €.',img:'https://www.prieezero.lt/uploads/hotel4917/sodyba-su-pirtimi-126132m.webp',credit:'PrieEžero.lt',url:'https://www.booking.com/Share-oGJrPCK',alt:'https://www.prieezero.lt/lt/apgyvendinimas/sodyba-poilsiadienis-4917/'},
+{id:'bebrusiukas',rank:2,name:'Bebrusiukas',source:'PrieEžero.lt',loc:'Ažuožerių k. · Bebrusų ežeras',lat:55.180629,lng:25.462165,water:1,eligible:null,pets:null,cap:6,capacity:'4–6 svečiai',min:'Nenurodyta',num:100,price:'nuo 100 €',priceNote:'4–6 asm. namelis / para',extras:'Pirtis 45 €',tags:['Ežero pakrantė','Pirtis','Rąstinis namelis','Molėtų raj.'],note:'Geras biudžetinis kandidatas keturiems žmonėms tiesiai ant Bebrusų ežero kranto; ar priims vienai nakčiai, reikėtų patvirtinti su šeimininku.',img:'https://www.prieezero.lt/uploads/hotel752/sodyba-bebrusiukas-63917m.webp',credit:'PrieEžero.lt',url:'https://www.prieezero.lt/lt/apgyvendinimas/sodyba-ant-bebrusu-ezero-kranto-752/'},
+{id:'gerves',rank:3,name:'Gervės Manor Guest House',source:'Airbnb',loc:'Vėžionys · Varėnės upės pakrantė',lat:54.386,lng:24.44,water:1,eligible:true,pets:true,cap:4,capacity:'4 svečiai',min:'Rodoma 1 naktis',num:null,price:'Tikrinti gyvai',priceNote:'Airbnb kainos nerodo santraukoje',extras:'Pirtis 40 €/d. · kubilas 80 €/d.',tags:['5,0 · 43 atsiliepimai','Prie upės','Pirtis ir kubilas','Priima gyvūnus'],note:'Aukščiausiai įvertintas variantas iš matomų duomenų: Airbnb rodo 5,0/5 įvertinimą iš 43 atsiliepimų ir žymą „Top 10% of homes“.',img:'https://a0.muscache.com/im/pictures/hosting/Hosting-1147880616389963301/original/42ca3d75-a8ad-42a5-b5db-783e2c432d45.jpeg?im_w=720',credit:'Airbnb',url:'https://www.airbnb.com/rooms/1147880616389963301?adults=4&check_in=2026-06-06&check_out=2026-06-07'},
+{id:'makio',rank:4,name:'Sodyba prie Makio ežero',source:'PrieEžero.lt',loc:'Ščiurio k. · Makio ežeras',lat:55.273209,lng:25.185280,water:1,eligible:null,pets:null,cap:10,capacity:'10 miegamųjų vietų',min:'Nenurodyta',num:200,price:'200–250 €',priceNote:'visa sodyba / para',extras:'Pirtis · kubilas · valtis',tags:['Ežero pakrantė','10 vietų','Kubilas','Vandens dviratis'],note:'Pilnai įrengta sodyba su nemažai pramogų, tačiau keturiems suaugusiesiems ji gali būti per didelė, lyginant su mažesniais nameliais.',img:'https://www.prieezero.lt/uploads/hotel4973/sodybos-nuoma-prie-121754m.webp',credit:'PrieEžero.lt',url:'https://www.prieezero.lt/lt/apgyvendinimas/sodybos-nuoma-prie-makio-4973/'},
+{id:'margis',rank:5,name:'Namelis ant Margio ežero kranto',source:'PrieEžero.lt',loc:'Trakų raj. · Margio ežeras',lat:54.599319,lng:24.798386,water:1,eligible:null,pets:false,cap:8,capacity:'Iki 8 svečių',min:'Nenurodyta',num:300,price:'nuo 300 €',priceNote:'visas kompleksas / para',extras:'Garinė pirtis',tags:['Ežero pakrantė','Tik vienai kompanijai','Pirtis','2 miegamieji'],note:'Erdvus ir privatus variantas su pirtimi, tačiau keturiems žmonėms yra gerokai brangesnis; su naminiais gyvūnais neapgyvendina.',img:'https://www.prieezero.lt/uploads/hotel4886/namelis-su-pirtimi-32791m.webp',credit:'PrieEžero.lt',url:'https://www.prieezero.lt/lt/apgyvendinimas/seimos-namelis-ant-margio-4886/'},
+{id:'stirniu',rank:6,name:'Namelis prie Stirnių ežero',source:'PrieEžero.lt',loc:'Kraujelių k. · Stirnių ežeras',lat:55.256691,lng:25.666077,water:1,eligible:false,pets:false,cap:5,capacity:'5 svečiai',min:'Mažiausiai 2 naktys',num:80,price:'80–100 €',priceNote:'sezoninė kaina / para',extras:'Valtis nurodyta skelbime',tags:['Ežero pakrantė','Valtis','Oro kondicionierius','Be gyvūnų'],note:'Pigiausia nurodyta kaina, tačiau šiam planui netinka: vasaros laikotarpiu skelbime nurodytas mažiausiai 2 naktų užsakymas.',img:'https://www.prieezero.lt/uploads/hotel1654/sodyba-poilsiui-moletu-78947m.webp',credit:'PrieEžero.lt',url:'https://www.prieezero.lt/lt/apgyvendinimas/sodyba-moletu-r-prie-stirniu-ezero-1654/'},
+{id:'nerk',rank:7,name:'Nerk į mišką Inturkėj',source:'PrieEžero.lt',loc:'Raukučių k. · Rudesos ežeras',lat:55.195477,lng:25.497395,water:1,eligible:false,pets:false,cap:6,capacity:'4–6 svečių nameliai',min:'Mažiausiai 4 naktys',num:100,price:'100–150 €',priceNote:'namelis / para',extras:'Pirtis 50 € · kubilas 50 €',tags:['Privati pakrantė','Kubilas','Pirtis','Be gyvūnų'],note:'Labai privati vieta miške, tačiau šiai datai netinka, nes vasaros laikotarpiu skelbime nurodyta minimali 4 naktų trukmė.',img:'https://www.prieezero.lt/uploads/hotel3779/-nerk-i-97136m.webp',credit:'PrieEžero.lt',url:'https://www.prieezero.lt/lt/apgyvendinimas/vienkiemis-su-privacia-ezero-3779/'}
+];
+let filter='all',picked=[];
+const list=document.getElementById('list'),sort=document.getElementById('sort');
+const map=L.map('map',{scrollWheelZoom:false}).setView([54.95,25.02],8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap bendradarbiai'}).addTo(map);
+const group=L.featureGroup().addTo(map),marks={};
+function markerIcon(v){const c=v===false?'#a57453':v===true?'#173f35':'#cf8641';return L.divIcon({className:'',iconSize:[28,36],iconAnchor:[14,35],popupAnchor:[0,-32],html:`<svg width="28" height="36" viewBox="0 0 28 36"><path fill="${c}" d="M14 0C6.3 0 0 6.2 0 13.8 0 24 14 36 14 36s14-12 14-22.2C28 6.2 21.7 0 14 0Z"/><circle fill="#fffdf8" cx="14" cy="13" r="5"/></svg>`})}
+stays.forEach(s=>{
+ const popup=`<img class="popup-img" src="${s.img}" alt="${s.name}"><div class="pop-title">${s.name}</div><div class="pop-info">${s.price} · ${s.min}</div><a class="pop-link" href="#${s.id}" onclick="focusCard('${s.id}')">Rodyti palyginime</a>`;
+ marks[s.id]=L.marker([s.lat,s.lng],{icon:markerIcon(s.eligible)}).bindPopup(popup).on('click',()=>focusCard(s.id)).addTo(group);
+});
+map.fitBounds(group.getBounds().pad(.15));
+function shown(){
+ let a=stays.filter(s=>filter==='all'||filter==='eligible'&&s.eligible!==false||filter==='water'&&s.water||filter==='pets'&&s.pets);
+ if(sort.value==='price')a.sort((x,y)=>(x.num??9999)-(y.num??9999));
+ else if(sort.value==='capacity')a.sort((x,y)=>y.cap-x.cap);
+ else a.sort((x,y)=>x.rank-y.rank);
+ return a;
+}
+function status(s){return s.eligible===true?'<span class="tag ok">Tinka 1 nakčiai</span>':s.eligible===false?'<span class="tag no">Netinka pasirinktoms datoms</span>':'<span class="tag">Patikslinti minimalią trukmę</span>'}
+function render(){
+ const a=shown();
+ list.innerHTML=a.map(s=>`<article class="item" id="${s.id}">
+  <div class="preview" onclick="marks['${s.id}'].openPopup()"><img loading="lazy" src="${s.img}" alt="${s.name} nuotraukos peržiūra"><span class="img-credit">Nuotr. ${s.credit}</span></div>
+  <div class="body"><div class="head"><div><div class="source">${s.source} · ${s.loc}</div><h2>${s.name}</h2></div><div class="price"><b>${s.price}</b><small>${s.priceNote}</small></div></div>
+  <div class="tags">${status(s)}${s.pets===true?'<span class="tag ok">Galima su gyvūnais</span>':s.pets===false?'<span class="tag">Be gyvūnų</span>':''}<span class="tag">Prie vandens</span></div>
+  <div class="facts"><div><small>Talpa</small><b>${s.capacity}</b></div><div><small>Min. trukmė</small><b>${s.min}</b></div><div><small>Papildomai</small><b>${s.extras}</b></div></div>
+  <p class="note">${s.note}</p><div class="tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  <div class="actions"><a onclick="event.stopPropagation()" target="_blank" rel="noopener" class="open" href="${s.url}">Atidaryti skelbimą ↗</a>${s.alt?`<a onclick="event.stopPropagation()" target="_blank" rel="noopener" class="open alt" href="${s.alt}">Kainos šaltinis ↗</a>`:''}<label onclick="event.stopPropagation()" class="pick"><input type="checkbox" ${picked.includes(s.id)?'checked':''} onchange="choose('${s.id}',this.checked)"> Palyginti</label></div>
+ </div></article>`).join('');
+ Object.entries(marks).forEach(([id,m])=>{if(a.some(x=>x.id===id)){if(!group.hasLayer(m))group.addLayer(m)}else group.removeLayer(m)});
+ if(group.getLayers().length) map.fitBounds(group.getBounds().pad(.15));
+}
+function focusCard(id){const el=document.getElementById(id);if(el){document.querySelectorAll('.item').forEach(e=>e.classList.remove('hot'));el.classList.add('hot');el.scrollIntoView({behavior:'smooth',block:'center'})}}
+function choose(id,on){if(on&&!picked.includes(id)){if(picked.length>=3){alert('Palyginimui galima pasirinkti iki trijų vietų.');render();return}picked.push(id)}else if(!on)picked=picked.filter(x=>x!==id);compare()}
+function compare(){const box=document.getElementById('compare'),data=picked.map(id=>stays.find(s=>s.id===id));if(!data.length){box.classList.remove('show');return}const rows=[['Kaina',...data.map(s=>s.price)],['Tinka vienai nakčiai',...data.map(s=>s.eligible===true?'Taip':s.eligible===false?'Ne':'Patikslinti')],['Talpa',...data.map(s=>s.capacity)],['Minimali trukmė',...data.map(s=>s.min)],['Vieta',...data.map(s=>s.loc)],['Papildomai',...data.map(s=>s.extras)],['Gyvūnai',...data.map(s=>s.pets===true?'Galima':s.pets===false?'Negalima':'Nenurodyta')]];document.getElementById('comparison').innerHTML=`<table><thead><tr><th>Savybė</th>${data.map(s=>`<th>${s.name}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table>`;box.classList.add('show')}
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.f;render()});
+sort.onchange=render;render();
+</script></body></html>
