@@ -289,11 +289,14 @@
   const cardEls   = [document.getElementById('card0'), document.getElementById('card1'), document.getElementById('card2')];
   const INTERVALS = [7200, 8800, 7800]; // ms — staggered so they don't swap together
   const active    = new Set();
-  const slots     = cardEls.map(() => ({ idx: -1, timer: null, busy: false }));
+  const slots     = cardEls.map(() => ({ idx: -1, timer: null, busy: false, swapCount: 0 }));
 
   function pickNext() {
-    const unused = MEDIA.map((_,i)=>i).filter(i => !active.has(i));
-    const pool   = unused.length ? unused : MEDIA.map((_,i)=>i);
+    const all    = MEDIA.map((_,i)=>i);
+    const unused = all.filter(i => !active.has(i));
+    const base   = unused.length ? unused : all;
+    // Videos get 3× weight so they appear more often
+    const pool   = base.flatMap(i => MEDIA[i].type === 'video' ? [i,i,i] : [i]);
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
@@ -317,7 +320,8 @@
     slot.busy = true;
     clearTimeout(slot.timer);
 
-    const next = pickNext();
+    const next = slots[i].swapCount === 0 ? ROUND2[i] : pickNext();
+    slots[i].swapCount++;
 
     // Fade out (opacity only — rotation lives on the wrapper, not here)
     const out = el.animate(
@@ -355,10 +359,18 @@
     slots[i].timer = setTimeout(() => swap(i), INTERVALS[i] + jitter);
   }
 
-  // Seed initial content, stagger first swaps so they don't all hit at once
-  const shuffled = MEDIA.map((_,i)=>i).sort(() => Math.random() - 0.5);
+  // Scripted opening: round 1 and round 2 are fixed, round 3+ is random
+  const SEED_L = MEDIA.findIndex(m => m.src.includes('141437888'));
+  const SEED_C = MEDIA.findIndex(m => m.src.includes('449833583'));
+  const SEED_R = MEDIA.findIndex(m => m.src.includes('410676730'));
+  const seedOrder = [SEED_L, SEED_C, SEED_R];
+  const ROUND2 = [
+    MEDIA.findIndex(m => m.src.includes('449157395')),
+    MEDIA.findIndex(m => m.src.includes('449327723')),
+    MEDIA.findIndex(m => m.src.includes('449496445')),
+  ];
   cardEls.forEach((el, i) => {
-    const idx = shuffled[i];
+    const idx = seedOrder[i];
     slots[i].idx = idx;
     active.add(idx);
 
